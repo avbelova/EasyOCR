@@ -10,6 +10,8 @@ from .craft_utils import getDetBoxes, adjustResultCoordinates
 from .imgproc import resize_aspect_ratio, normalizeMeanVariance
 from .craft import CRAFT
 
+from openvino.runtime import Core, Layout, Type, PartialShape
+
 def copyStateDict(state_dict):
     if list(state_dict.keys())[0].startswith("module"):
         start_idx = 1
@@ -42,8 +44,12 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
     x = x.to(device)
 
     # forward pass
-    with torch.no_grad():
-        y, feature = net(x)
+    #with torch.no_grad():
+        #y, feature = net(x)
+    
+    res=net.infer_new_request({0: x})
+    y=torch.tensor(res[0])
+    features=torch.tensor(res[1])
 
     boxes_list, polys_list = [], []
     for out in y:
@@ -72,7 +78,7 @@ def test_net(canvas_size, mag_ratio, net, image, text_threshold, link_threshold,
     return boxes_list, polys_list
 
 def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=False):
-    net = CRAFT()
+    '''net = CRAFT()
 
     if device == 'cpu':
         net.load_state_dict(copyStateDict(torch.load(trained_model, map_location=device)))
@@ -86,8 +92,11 @@ def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=Fal
         net = torch.nn.DataParallel(net).to(device)
         cudnn.benchmark = cudnn_benchmark
 
-    net.eval()
-    return net
+    net.eval()'''
+    core = Core()
+    model_ov = core.read_model('../openvino_model/easyocr_detector_en.xml')
+    net_ov = core.compile_model(model_ov, 'CPU')
+    return net_ov
 
 def get_textbox(detector, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, optimal_num_chars=None, **kwargs):
     result = []
