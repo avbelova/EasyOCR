@@ -10,6 +10,10 @@ import importlib
 from .utils import CTCLabelConverter
 import math
 
+import os
+
+from openvino.runtime import Core
+
 def custom_mean(x):
     return x.prod()**(2.0/np.sqrt(len(x)))
 
@@ -98,7 +102,7 @@ class AlignCollate(object):
 
 def recognizer_predict(model, converter, test_loader, batch_max_length,\
                        ignore_idx, char_group_idx, decoder = 'greedy', beamWidth= 5, device = 'cpu'):
-    model.eval()
+    #model.eval()
     result = []
     with torch.no_grad():
         for image_tensors in test_loader:
@@ -107,11 +111,15 @@ def recognizer_predict(model, converter, test_loader, batch_max_length,\
             # For max length prediction
             length_for_pred = torch.IntTensor([batch_max_length] * batch_size).to(device)
             text_for_pred = torch.LongTensor(batch_size, batch_max_length + 1).fill_(0).to(device)
-
-            preds = model(image, text_for_pred)
+            
+            res = model.infer_new_request({0: image})
+            preds = next(iter(res.values()))
+            preds=torch.tensor(preds)
+            #preds = model(image, text_for_pred)
 
             # Select max probabilty (greedy decoding) then decode index to character
             preds_size = torch.IntTensor([preds.size(1)] * batch_size)
+
 
             ######## filter ignore_char, rebalance
             preds_prob = F.softmax(preds, dim=2)
@@ -157,7 +165,7 @@ def get_recognizer(recog_network, network_params, character,\
     converter = CTCLabelConverter(character, separator_list, dict_list)
     num_class = len(converter.character)
 
-    if recog_network == 'generation1':
+    '''if recog_network == 'generation1':
         model_pkg = importlib.import_module("easyocr.model.model")
     elif recog_network == 'generation2':
         model_pkg = importlib.import_module("easyocr.model.vgg_model")
@@ -179,9 +187,14 @@ def get_recognizer(recog_network, network_params, character,\
                 pass
     else:
         model = torch.nn.DataParallel(model).to(device)
-        model.load_state_dict(torch.load(model_path, map_location=device))
+        model.load_state_dict(torch.load(model_path, map_location=device))'''
+    ov_models_path=os.environ['OV_MODEL_PATH']
+    ov_model_path=ov_models_path+"/1_recognition_model.xml"
+    core = Core()
+    model_ov = core.read_model(ov_model_path)
+    comp_model = core.compile_model(model_ov, 'CPU')
 
-    return model, converter
+    return comp_model, converter
 
 def get_text(character, imgH, imgW, recognizer, converter, image_list,\
              ignore_char = '',decoder = 'greedy', beamWidth =5, batch_size=1, contrast_ths=0.1,\
