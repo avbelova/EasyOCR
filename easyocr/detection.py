@@ -10,7 +10,8 @@ from .craft_utils import getDetBoxes, adjustResultCoordinates
 from .imgproc import resize_aspect_ratio, normalizeMeanVariance
 from .craft import CRAFT
 
-from openvino.runtime import Core, Layout, Type, PartialShape
+from openvino.runtime import Core
+import os
 
 def copyStateDict(state_dict):
     if list(state_dict.keys())[0].startswith("module"):
@@ -93,8 +94,10 @@ def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=Fal
         cudnn.benchmark = cudnn_benchmark
 
     net.eval()'''
+    ov_models_path=os.environ['OV_MODEL_PATH']
+    ov_model_path=ov_models_path+"/easyocr_detector_en.xml"
     core = Core()
-    model_ov = core.read_model('../openvino_model/easyocr_detector_en.xml')
+    model_ov = core.read_model(ov_model_path)
     net_ov = core.compile_model(model_ov, 'CPU')
     return net_ov
 
