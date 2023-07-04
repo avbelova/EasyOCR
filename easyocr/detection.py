@@ -98,7 +98,9 @@ def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=Fal
     ov_model_path=ov_models_path+"/easyocr_detector_en.xml"
     core = Core()
     model_ov = core.read_model(ov_model_path)
-    net_ov = core.compile_model(model_ov, 'CPU')
+    ov_device=os.environ['OV_DEVICE']
+    net_ov = core.compile_model(model_ov, ov_device)
+    print("Text detection model is running with OpenVINO on", ov_device)
     return net_ov
 
 def get_textbox(detector, image, canvas_size, mag_ratio, text_threshold, link_threshold, low_text, poly, device, optimal_num_chars=None, **kwargs):
