@@ -9,8 +9,8 @@ pip install openvino-dev
 Step 2. Clone a fork with the integration, build a wheel file, install it into the same virtual environment
 ``` bash
 git clone https://github.com/avbelova/EasyOCR.git
-git checkout feature/openvino/integration
 cd EasyOCR
+git checkout feature/openvino/integration
 python setup.py bdist_wheel
 pip install dist/<easyocr_wheel_name>.whl
 ```  
