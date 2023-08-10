@@ -14,10 +14,10 @@ git checkout feature/openvino/integration
 python setup.py bdist_wheel
 pip install dist/<easyocr_wheel_name>.whl
 ```  
-Step 3. Set up the path to the models. All needed models are [here](https://github.com/avbelova/EasyOCR/tree/feature/openvino/integration/openvino_models)  So, to make everything work, export OV_MODEL_PATH environmental variable (it should be the path to these models):  
+Step 3. Set up the path to the models. All needed models are [here](https://github.com/avbelova/EasyOCR/tree/feature/openvino/integration/openvino_models)  So, to make everything work, export OV_DET_MODEL_PATH and OV_REC_MODEL_PATH environmental variables with paths to .xml or .onnx files of the models, for example:  
 ``` bash
-cd openvino_model
-export OV_MODEL_PATH=$PWD
+export OV_DET_MODEL_PATH=/<absolute path to>/easyocr_detector_en.xml
+export OV_REC_MODEL_PATH=/<absolute path to>/1_recognition_model.xml
 ```  
 Step 4. Choose the inference device. EasyOCR can be run by OpenVINO on Intel(R) CPU, Intel(R) Processor Graphics and Intel(R) Discrete Graphics. 
 Export OV_DEVICE environmental variable to choose the inference device between “CPU”, “GPU”/"GPU.0" or “GPU.1” correspondingly.
