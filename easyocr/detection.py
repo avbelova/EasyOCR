@@ -94,8 +94,7 @@ def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=Fal
         cudnn.benchmark = cudnn_benchmark
 
     net.eval()'''
-    ov_models_path=os.environ['OV_MODEL_PATH']
-    ov_model_path=ov_models_path+"/easyocr_detector_en.xml"
+    ov_model_path=os.environ['OV_DET_MODEL_PATH']
     core = Core()
     model_ov = core.read_model(ov_model_path)
     ov_device=os.environ['OV_DEVICE']

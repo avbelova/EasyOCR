@@ -188,8 +188,7 @@ def get_recognizer(recog_network, network_params, character,\
     else:
         model = torch.nn.DataParallel(model).to(device)
         model.load_state_dict(torch.load(model_path, map_location=device))'''
-    ov_models_path=os.environ['OV_MODEL_PATH']
-    ov_model_path=ov_models_path+"/1_recognition_model_static.xml"
+    ov_model_path=os.environ['OV_REC_MODEL_PATH']
     core = Core()
     model_ov = core.read_model(ov_model_path)
     ov_device=os.environ['OV_DEVICE']
