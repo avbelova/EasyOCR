@@ -190,6 +190,7 @@ def get_recognizer(recog_network, network_params, character,\
         model.load_state_dict(torch.load(model_path, map_location=device))'''
     ov_model_path=os.environ['OV_REC_MODEL_PATH']
     core = Core()
+    core.set_property({'CACHE_DIR': './cache'})
     model_ov = core.read_model(ov_model_path)
     ov_device=os.environ['OV_DEVICE']
     comp_model = core.compile_model(model_ov, ov_device)
