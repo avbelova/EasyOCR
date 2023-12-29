@@ -95,9 +95,11 @@ def get_detector(trained_model, device='cpu', quantize=True, cudnn_benchmark=Fal
 
     net.eval()'''
     ov_model_path=os.environ['OV_DET_MODEL_PATH']
-    core = Core()
-    model_ov = core.read_model(ov_model_path)
     ov_device=os.environ['OV_DEVICE']
+    core = Core()
+    if 'GPU' in ov_device:
+        core.set_property({'CACHE_DIR': './cache'})
+    model_ov = core.read_model(ov_model_path)
     net_ov = core.compile_model(model_ov, ov_device)
     print("Text detection model is running with OpenVINO on", ov_device)
     return net_ov
