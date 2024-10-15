@@ -230,7 +230,7 @@ class Reader(object):
                 network_params = recog_config['network_params']
             self.recognizer, self.converter = get_recognizer(recog_network, network_params,\
                                                          self.character, separator_list,\
-                                                         dict_list, model_path, device = self.device, quantize=quantize)
+                                                         dict_list, model_path, language=self.model_lang, device = self.device, quantize=quantize)
 
     def getDetectorPath(self, detect_network):
         if detect_network in self.support_detection_network:

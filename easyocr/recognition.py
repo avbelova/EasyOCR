@@ -172,7 +172,7 @@ def recognizer_predict(model, converter, test_loader, batch_max_length,\
 
 def get_recognizer(recog_network, network_params, character,\
                    separator_list, dict_list, model_path,\
-                   device = 'cpu', quantize = True):
+                   language, device = 'cpu', quantize = True):
 
     converter = CTCLabelConverter(character, separator_list, dict_list)
     num_class = len(converter.character)
@@ -205,6 +205,7 @@ def get_recognizer(recog_network, network_params, character,\
             core.set_property({'CACHE_DIR': cache_dir})
         dummy_inp = torch.zeros(1, 1, 64, 320),torch.zeros(1,33)
         model_ov = ov.convert_model(model,example_input=dummy_inp)
+        ov.save_model(model_ov, 'recognition_model_'+language+".xml", compress_to_fp16=True)
         model = core.compile_model(model_ov, ov_device)
         print('Text recognition model is running with OpenVINO on Intel ', ov_device)
     else:
